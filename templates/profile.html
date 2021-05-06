@@ -1,0 +1,73 @@
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Result</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class='text-center'>
+    <br><br>
+
+    <div id="main"> 
+        <h3>WELCOME!</h3>
+        <div id="formarea"> 
+            <hr>
+            <div class="row">
+                {{ user.id_number }}
+            </div>
+            <br>
+
+            <div class="row">
+                {{ user.username }}
+            </div>
+            <br>
+            
+            <div class="row">
+                {{ user.name }} {{ user.surname }} 
+            </div>
+            <br>
+            
+            <div class="row">
+                {{ user.serial_number }}
+            </div>
+            <br>
+
+            <div class="row">
+                {{ user.last_date }}
+            </div>
+            <br>
+            <hr>
+            <a class="btn btn-danger" href="/logout"> LOGOUT </a>
+        </div>
+    </div>
+</body>
+
+<style>
+    body {
+        margin: auto;
+    }
+
+    #main {
+        width: 500px;
+        height: 65%;
+        margin: auto;
+        margin-top: 3%;
+        border-radius: 15px;
+        border-style: solid;
+        border-color: black;
+    }
+
+    #formarea {
+        margin: auto;
+        margin-top: 10%;
+        margin-bottom: 5%;
+        margin-left: 20%;
+        margin-right: 20%;
+    }
+
+</style>
+
+</html>

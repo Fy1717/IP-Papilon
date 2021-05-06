@@ -1,0 +1,125 @@
+{% from "includes/formhelpers.html" import render_field %}
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Result</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class='text-center'>
+    <br><br>
+
+    <div id="main"> 
+        <h3>ID CARD INFO</h3>
+        <hr>
+        <div id="formarea"> 
+            <div class="row">
+                <div class="col-auto">
+                    <input class="form-control text-center" value=" {{ idInformation.id_number }} ">
+                </div>
+            </div>
+            <br>
+
+            <div class="row">
+                <div class="col-auto">
+                    <input class="form-control text-center" value=" {{ idInformation.name }} ">
+                </div>
+            </div>
+            <br>
+                
+            <div class="row">
+                <div class="col-auto">
+                    <input class="form-control text-center" value=" {{ idInformation.surname }} ">
+                </div>
+            </div>
+            <br>
+                
+            <div class="row">
+                <div class="col-auto">
+                    <input class="form-control text-center" value=" {{ idInformation.serial_number }} ">
+                </div>
+            </div>
+            <br>
+                
+            <div class="row">
+                <div class="col-auto">
+                    <input class="form-control text-center" value=" {{ idInformation.last_date }} ">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="main2">
+        <form method="post">
+            <h3>USER INFO</h3>
+            <hr>
+
+            <div class="row">
+                <div class="col-auto text-center">
+                    {{ render_field(form.username) }}
+                </div>
+            </div>
+            <br>
+            
+            <div class="row">
+                <div class="col-auto text-center">
+                    {{ render_field(form.password) }}
+                </div>
+            </div>
+            <br>
+
+            <div class="row">
+                <div class="col-auto text-center">
+                    {{ render_field(form.confirm) }}
+                </div>
+            </div>
+            
+            <br>
+            <input class="btn btn-danger" type="submit" value="Register">
+            <br>
+        </form>
+    </div>
+</body>
+
+<style>
+    body {
+        margin: auto;
+    }
+
+    #main {
+        width: 500px;
+        height: 55%;
+        margin: auto;
+        margin-top: 10%;
+        margin-left: 10%;
+        float: left;
+        border-radius: 15px;
+        border-style: solid;
+        border-color: black;
+    }
+
+    #formarea {
+        margin: auto;
+        margin-top: 3%;
+        margin-bottom: 5%;
+        margin-left: 20%;
+        margin-right: 20%;
+    }
+
+    #main2 {
+        width: 500px;
+        height: 55%;
+        margin: auto;
+        float: right;
+        margin-top: 10%;
+        border-radius: 15px;
+        border-style: solid;
+        border-color: black;
+        margin-right: 10%;
+    }
+</style>
+
+</html>
