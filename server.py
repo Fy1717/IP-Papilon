@@ -1,12 +1,15 @@
 
 import os, ftfy, cv2, re, urllib
 import pytesseract as tess
-from flask import Flask, url_for, redirect, render_template, request, session
-from flask_uploads import UploadSet, configure_uploads, IMAGES
-from PIL import Image
+from flask import Flask, url_for, redirect, render_template, request, session, flash
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
-from functools import wraps
+from flask_uploads import UploadSet, configure_uploads, IMAGES
+from flask_jwt import JWT, jwt_required, current_identity
+from werkzeug.security import safe_str_cmp
 from flask_mysqldb import MySQL
+from functools import wraps
+from PIL import Image
+
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -14,7 +17,6 @@ app = Flask(__name__,
             static_url_path = '',
             static_folder = 'static',
             template_folder = 'templates')
-app.secret_key = "papilon-defence"
 
 photos = UploadSet('photos', IMAGES)
 
@@ -24,6 +26,7 @@ app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = ""
 app.config["MYSQL_DB"] = "papilon"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
+app.config['SECRET_KEY'] = 'papilon-defence'
 
 mysql = MySQL(app)
 # -----------------------------------------------------------------------------------------------------------------
@@ -84,11 +87,13 @@ def login():
             if password == real_password:
                 session["logged_in"] = True
                 session["username"] = username
-                
+
                 return redirect(url_for("profile"))
             else:
                 return redirect(url_for("login"))
         else:
+            flash("Please try again!", "danger")
+
             return redirect(url_for("login"))
     return render_template("login.html", form = form)
 # ----------------------------------------------------------------------------------------------------------------- 
@@ -127,7 +132,6 @@ def register():
     password = form.password.data
     lastdate = list_of_text[24].split(' ')[0].split('.')
 
-
     idInformation = {
         'id_number': list_of_text[5],
         'name': list_of_text[13],
@@ -136,7 +140,7 @@ def register():
         'last_date': lastdate[-1] + '-' + lastdate[1] + '-' + lastdate[0] 
     }
 
-    print(idInformation)
+    #print(idInformation)
 
     cursor = mysql.connection.cursor()
 
@@ -161,10 +165,12 @@ def profile():
 
     if result > 0:
         user = cursor.fetchone()
-        print(user)
-
+        #print(user)
         mysql.connection.commit()
         cursor.close()
+        
+    flash("Login Success!", "success")
+
     return render_template("profile.html", user = user)
 # ----------------------------------------------------------------------------------------------------------------- 
 
