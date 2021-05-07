@@ -1,5 +1,5 @@
 
-import os, ftfy, cv2, re, urllib
+import os, ftfy, re, urllib
 import pytesseract as tess
 import jwt
 import datetime
