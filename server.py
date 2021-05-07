@@ -1,11 +1,11 @@
 
 import os, ftfy, cv2, re, urllib
 import pytesseract as tess
-from flask import Flask, url_for, redirect, render_template, request, session, flash
+import jwt
+import datetime
+from flask import Flask, url_for, redirect, render_template, request, session, flash, make_response
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
-from flask_uploads import UploadSet, configure_uploads, IMAGES
-from flask_jwt import JWT, jwt_required, current_identity
-from werkzeug.security import safe_str_cmp
+from flask_uploads import UploadSet, configure_uploads
 from flask_mysqldb import MySQL
 from functools import wraps
 from PIL import Image
@@ -18,15 +18,13 @@ app = Flask(__name__,
             static_folder = 'static',
             template_folder = 'templates')
 
-photos = UploadSet('photos', IMAGES)
-
 # -------------------------------------- DATABASE CONNECTION -----------------------------------------------------
 app.config["MYSQL_HOST"] = "localhost"
 app.config["MYSQL_USER"] = "root"
 app.config["MYSQL_PASSWORD"] = ""
 app.config["MYSQL_DB"] = "papilon"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
-app.config['SECRET_KEY'] = 'papilon-defence'
+app.config['SECRET_KEY'] = 'papilon-secret'
 
 mysql = MySQL(app)
 # -----------------------------------------------------------------------------------------------------------------
@@ -53,7 +51,26 @@ class ImageText(object):
             ftfy.fix_text(
                 tess.image_to_string(
                     Image.open(project_dir + '/images/' + file))))
-# -----------------------------------------------------------------------------------------------------------------                  
+# -----------------------------------------------------------------------------------------------------------------     
+
+# -------------------------------------- JWT OPERATOR ------------------------------------------------------
+
+def check_for_token(func):
+    @wraps(func)
+    def wrapped():
+        token = request.args.get('token')
+
+        if not token:
+            return jsonify({'message': 'Missing Token'}), 403
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+        except:
+            return jsonify({'message': 'Invalid Token'}), 403
+        
+        return func(*args, **kwargs)
+    return wrapped
+
+# -----------------------------------------------------------------------------------------------------------------        
 
 # -------------------------------------- LOGIN DECORATOR ------------------------------------------------------
 def login_required(f):
@@ -87,6 +104,15 @@ def login():
             if password == real_password:
                 session["logged_in"] = True
                 session["username"] = username
+
+                token = jwt.encode({
+                    'user': username,
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+                }, app.config['SECRET_KEY']) 
+
+                print('TOKEN --> ', token)
+
+                make_response('Could not verify!', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
                 return redirect(url_for("profile"))
             else:
@@ -146,7 +172,7 @@ def register():
 
     if request.method == "POST" and form.validate():
         sorgu = "Insert into users(name, id_number, username, surname, password, serial_number, last_date) VALUES(%s, %s, %s, %s, %s, %s, %s)"
-        cursor.execute(sorgu,(idInformation.get('name'), idInformation.get('id_number'), username, 
+        cursor.execute(sorgu, (idInformation.get('name'), idInformation.get('id_number'), username, 
                 idInformation.get('surname'), password, idInformation.get('serial_number'), idInformation.get('last_date'),))
         mysql.connection.commit()
         cursor.close()
@@ -156,6 +182,8 @@ def register():
 # -----------------------------------------------------------------------------------------------------------------              
 
 # ----------------------------------------- PROFILE ------------------------------------------------------
+@login_required
+@check_for_token
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
     cursor = mysql.connection.cursor()
