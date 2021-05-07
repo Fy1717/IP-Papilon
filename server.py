@@ -125,20 +125,25 @@ def register():
 
     username = form.username.data
     password = form.password.data
+    lastdate = list_of_text[24].split(' ')[0].split('.')
+
 
     idInformation = {
         'id_number': list_of_text[5],
         'name': list_of_text[13],
         'surname': list_of_text[9],
         'serial_number': list_of_text[20].split(':')[0],
-        'last_date': list_of_text[24].split(' ')[0]
+        'last_date': lastdate[-1] + '-' + lastdate[1] + '-' + lastdate[0] 
     }
+
+    print(idInformation)
 
     cursor = mysql.connection.cursor()
 
     if request.method == "POST" and form.validate():
-        sorgu = "Insert into users(name, id_number, username, surname, password) VALUES(%s, %s, %s, %s, %s, %s)"
-        cursor.execute(sorgu,(idInformation.get('name'), idInformation.get('id_number'), username, idInformation.get('surname'), password, ))
+        sorgu = "Insert into users(name, id_number, username, surname, password, serial_number, last_date) VALUES(%s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(sorgu,(idInformation.get('name'), idInformation.get('id_number'), username, 
+                idInformation.get('surname'), password, idInformation.get('serial_number'), idInformation.get('last_date'),))
         mysql.connection.commit()
         cursor.close()
 
